@@ -45,3 +45,22 @@ runtimeCaching でリクエストをキャッチしてキャッシュ
 or
 % npm run build
 ```
+
+## sw-offline-service-worker
+
+```
+% npm install -D sw-offline-google-analytycs
+```
+
+以下を sw.js の冒頭に concat（service worker fetch イベントの前）
+```
+importScripts('js/sw-offline-google-analytics.js');
+goog.offlineGoogleAnalytics.initialize();
+```
+
+sw-offline-google-analytics.js は、  
+node_modules/sw-offline-google-analytics/build/importScripts/sw-offline-google-analytics.prod.*.js  
+から取得し、適宜 deploy する  
+```
+% npm run build
+```
