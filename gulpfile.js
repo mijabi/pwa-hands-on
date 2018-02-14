@@ -2,11 +2,12 @@ var gulp = require('gulp');
 var sass = require('gulp-sass');
 var babel = require('gulp-babel');
 var copy = require('gulp-copy');
+var browserSync = require('browser-sync').create();
 
 var path = {
     js: './src/js/sw/a.js',
     html: './src/*.html',
-    css:'./src/scss/**/*.scss',
+    css: './src/scss/**/*.scss',
 
 }
 gulp.task('default', defaultTask);
@@ -30,12 +31,23 @@ gulp.task('copy', function () {
         .pipe(gulp.dest('./dist/'));
 });
 
-function defaultTask(done) {
-    // place code for your default task here
-    done();
+function defaultTask() {
+    gulp.run(['sass', 'js', 'copy', 'watch']);
+    // done();
 }
 
-gulp.task('watch', function () {
+gulp.task('browser-sync', function () {
+    browserSync.init({
+        open: true,
+        port: 3004,
+        https: true,
+        server: {
+            baseDir: "./dist/"
+        }
+    });
+});
+
+gulp.task('watch', ['browser-sync'], function () {
     gulp.watch(path.js, ['js']);
     gulp.watch(path.css, ['sass']);
     gulp.watch(path.html, ['copy']);

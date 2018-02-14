@@ -62,18 +62,48 @@ gulp.task('watch', function () {
     gulp.watch('./src/*.html', ['copy']);
 });
 ```
+
+## browser-sync
+```
+% npm install -D browser-sync
+```
+```
+var browserSync = require('browser-sync').create();
+
+function defaultTask(done) {
+    gulp.run(['sass', 'js', 'copy', 'watch']);
+    done();
+}
+
+gulp.task('browser-sync', function () {
+    browserSync.init({
+        open: true,
+        port: 3004,
+        https: true,
+        server: {
+            baseDir: "./dist/"
+        }
+    });
+});
+
+gulp.task('watch', ['browser-sync'], function () {
+```
+
 ## ディレクトリと適当な html、sass、js ファイルを作成
 ```
 % mkdir -p src/scss/sw src/js/sw src/img/sw
 ```
 ---
-## sw-precache
+## npm install sw-precache
 ```zsh
 % npm install -D sw-precache
 ```
 
 ### staticFileGLobs（プリキャッシュ
 gulpfile.js
+```
+var precache = require('sw-precache');
+```
 ```
 gulp.task('generate-service-worker', function (callback) {
     const precache = require('sw-precache');
@@ -89,13 +119,12 @@ gulp.task('generate-service-worker', function (callback) {
             `${home}/js/sw/*.js`
         ]
     }, () => {});
+    return callback()
+
 });
 ```
 ```
 gulp.task('precache', ['generate-service-worker']);
-```
-```
-% gulp precache
 ```
 ```
 gulp.task('sass', ['precache'], function () {
@@ -105,7 +134,23 @@ gulp.task('js', ['precache'], () =>
 gulp.task('copy', ['precache'], function () {
 ```
 ```
-% gulp watch
+% gulp precache
+% gulp
+```
+
+### SW JS install
+
+index.html
+```
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/sw.js').then(function(registration) {
+    // 登録成功
+    console.log('ServiceWorker registration successful with scope: ', registration.scope);
+  }).catch(function(err) {
+    // 登録失敗 :(
+    console.log('ServiceWorker registration failed: ', err);
+  });
+}
 ```
 
 ### runtimeCaching（ランタイムキャッシュ
@@ -137,5 +182,6 @@ gulp.task('generate-service-worker', function (callback) {
             }
         }]
     }, () => {});
+    return callback()
 });
 ```
